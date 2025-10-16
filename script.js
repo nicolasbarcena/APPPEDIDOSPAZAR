@@ -21,7 +21,7 @@ const nk = (s) =>
     .toLowerCase()
     .trim();
 
-const getVal = (obj, key) => {
+  const getVal = (obj, key) => {
   const found = Object.keys(obj).find((k) => nk(k) === nk(key));
   return found ? obj[found] : "";
 };
