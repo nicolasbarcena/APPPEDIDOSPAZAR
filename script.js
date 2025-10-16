@@ -1,16 +1,11 @@
-
 const EMAILJS_PUBLIC_KEY = "TuhS0Seczz9QwIrV2";
 const SERVICE_ID = "service_6gz5wpm";
 const TEMPLATE_ID = "template_ibmmboa";
-
 emailjs.init(EMAILJS_PUBLIC_KEY);
-
 let carrito = [];
 let remitoActual = null;
-
 let paginaActual = 1;
 const productosPorPagina = 15;
-
 let productos = [];
 
 const SHEET_ID = "1NNEGWD_SQtV_9jE-kzRhPLzt5QkS-PJyP0CDq1riJ6o";
@@ -45,7 +40,6 @@ async function cargarProductos() {
   try {
     let csvText = null;
     let lastErr = null;
-
     for (const url of SHEET_URLS) {
       try {
         const res = await fetch(url);
@@ -61,11 +55,9 @@ async function cargarProductos() {
         lastErr = e;
       }
     }
-
     if (csvText == null) {
       throw lastErr || new Error("No se pudo descargar el CSV desde ninguna URL.");
     }
-
     const data = Papa.parse(csvText, {
       header: true,
       skipEmptyLines: true,
@@ -80,14 +72,13 @@ async function cargarProductos() {
         stock: parseInt(getVal(p, "stock") || 0, 10),
       }))
       .filter((p) => p.description || p.code);
-
     console.log("Productos cargados desde Sheets:", productos.length);
   } catch (err) {
     console.error("Error cargando productos desde Google Sheets:", err);
     alert(
       "No se pudieron cargar los productos desde la hoja de Google. " +
-        "Verificá que la hoja esté compartida como 'Cualquiera con el enlace - Lector' " +
-        "y que los encabezados sean: code, description, category, price, stock."
+      "Verificá que la hoja esté compartida como 'Cualquiera con el enlace - Lector' " +
+      "y que los encabezados sean: code, description, category, price, stock."
     );
   }
 }
@@ -95,9 +86,7 @@ async function cargarProductos() {
 function mostrarProductos(categoria, pagina = 1) {
   const contenedor = document.getElementById("productos");
   contenedor.innerHTML = "";
-
   const filtrados = productos.filter((p) => p.category === categoria);
-
   if (filtrados.length === 0) {
     contenedor.innerHTML = "<p>No hay productos en esta categoría.</p>";
     return;
@@ -110,12 +99,11 @@ function mostrarProductos(categoria, pagina = 1) {
   paginaProductos.forEach((prod) => {
     const div = document.createElement("div");
     div.classList.add("producto");
-
     div.innerHTML = `
       <h3>${prod.description}</h3>
       <p>Código: ${prod.code}</p>
       <p>Precio: $${parsePrice(prod.price).toFixed(2)}</p>
-      <!-- Si querés mostrar el stock, descomentá la siguiente línea:
+      <!-- Si querés mostrar el stock, descomentá:
       <p>Stock: <span id="stock-${prod.code}">${Number.isFinite(prod.stock) ? prod.stock : 0}</span></p>
       -->
       <button id="btn-${prod.code}"
@@ -124,29 +112,26 @@ function mostrarProductos(categoria, pagina = 1) {
         Agregar
       </button>
     `;
-
     contenedor.appendChild(div);
   });
 
   const paginacion = document.createElement("div");
   paginacion.classList.add("paginacion");
-
   if (pagina > 1) {
     const btnPrev = document.createElement("button");
     btnPrev.textContent = "⬅ Anterior";
     btnPrev.onclick = () => mostrarProductos(categoria, pagina - 1);
     paginacion.appendChild(btnPrev);
   }
-
   if (fin < filtrados.length) {
     const btnNext = document.createElement("button");
     btnNext.textContent = "Siguiente ➡";
     btnNext.onclick = () => mostrarProductos(categoria, pagina + 1);
     paginacion.appendChild(btnNext);
   }
-
   contenedor.appendChild(paginacion);
 }
+
 
 function agregarAlCarrito(code, description, price) {
   const producto = productos.find((p) => p.code === code);
@@ -157,7 +142,6 @@ function agregarAlCarrito(code, description, price) {
   }
 
   let existente = carrito.find((p) => p.code === code);
-
   if (existente) {
     if (existente.cantidad < producto.stock) {
       existente.cantidad++;
@@ -179,19 +163,16 @@ function agregarAlCarrito(code, description, price) {
 
   const stockSpan = document.getElementById(`stock-${code}`);
   if (stockSpan) stockSpan.textContent = producto.stock;
-
   if (producto.stock <= 0) {
     const btn = document.getElementById(`btn-${code}`);
     if (btn) btn.disabled = true;
   }
-
   renderCarrito();
 }
 
 function renderCarrito() {
   const tbody = document.getElementById("carrito-body");
   tbody.innerHTML = "";
-
   carrito.forEach((item, index) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -199,7 +180,7 @@ function renderCarrito() {
       <td>${item.description}</td>
       <td>
         <input type="number" min="1" value="${item.cantidad}"
-        onchange="cambiarCantidad(${index}, this.value)">
+               onchange="cambiarCantidad(${index}, this.value)">
       </td>
       <td>$${parsePrice(item.price).toFixed(2)}</td>
       <td>$${item.subtotal.toFixed(2)}</td>
@@ -207,7 +188,6 @@ function renderCarrito() {
     `;
     tbody.appendChild(tr);
   });
-
   const total = carrito.reduce((sum, i) => sum + i.subtotal, 0);
   document.getElementById("total").textContent = total.toFixed(2);
 }
@@ -215,10 +195,8 @@ function renderCarrito() {
 function cambiarCantidad(index, cantidad) {
   cantidad = parseInt(cantidad, 10);
   if (!Number.isFinite(cantidad) || cantidad < 1) cantidad = 1;
-
   const producto = productos.find((p) => p.code === carrito[index].code);
   if (!producto) return;
-
   const maxPosible = producto.stock + carrito[index].cantidad;
   if (cantidad > maxPosible) {
     alert(`Stock insuficiente. Solo quedan ${maxPosible} unidades.`);
@@ -227,20 +205,12 @@ function cambiarCantidad(index, cantidad) {
 
   const diferencia = cantidad - carrito[index].cantidad;
   producto.stock -= diferencia;
-
   carrito[index].cantidad = cantidad;
   carrito[index].subtotal = carrito[index].cantidad * carrito[index].price;
-
   const stockSpan = document.getElementById(`stock-${producto.code}`);
   if (stockSpan) stockSpan.textContent = producto.stock;
-
-  if (producto.stock <= 0) {
-    const btn = document.getElementById(`btn-${producto.code}`);
-    if (btn) btn.disabled = true;
-  } else {
-    const btn = document.getElementById(`btn-${producto.code}`);
-    if (btn) btn.disabled = false;
-  }
+  const btn = document.getElementById(`btn-${producto.code}`);
+  if (btn) btn.disabled = producto.stock <= 0;
 
   renderCarrito();
 }
@@ -249,15 +219,11 @@ function eliminarDelCarrito(index) {
   const item = carrito[index];
   const producto = productos.find((p) => p.code === item.code);
   if (!producto) return;
-
   producto.stock += item.cantidad;
-
   const stockSpan = document.getElementById(`stock-${producto.code}`);
   if (stockSpan) stockSpan.textContent = producto.stock;
-
   const btn = document.getElementById(`btn-${producto.code}`);
   if (btn) btn.disabled = producto.stock <= 0;
-
   carrito.splice(index, 1);
   renderCarrito();
 }
@@ -294,7 +260,6 @@ async function finalizarPedido() {
     items: [...carrito],
     total,
   };
-
   mostrarRemito(remitoActual);
 
   try {
@@ -308,14 +273,11 @@ async function finalizarPedido() {
     );
 
     const data = await res.json();
-
     if (data.success) {
       console.log("Stock actualizado en Sheets:", data.updated);
-
       data.updated.forEach((u) => {
         const stockSpan = document.getElementById(`stock-${u.code}`);
         if (stockSpan) stockSpan.textContent = u.stock;
-
         const btn = document.getElementById(`btn-${u.code}`);
         if (btn) btn.disabled = u.stock <= 0;
       });
@@ -350,7 +312,6 @@ function mostrarRemito(remito) {
     </table>
     <h3>Total: $${remito.total.toFixed(2)}</h3>
   `;
-
   document.getElementById("remito-section").style.display = "block";
 }
 
@@ -369,7 +330,6 @@ async function enviarEmail() {
   </tr>`
     )
     .join("");
-
   try {
     await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
       numero: remitoActual.numero,
@@ -385,7 +345,10 @@ async function enviarEmail() {
   }
 }
 
-document.getElementById("finalizar").addEventListener("click", finalizarPedido);
-document.getElementById("enviar").addEventListener("click", enviarEmail);
+const btnFinalizar = document.getElementById("finalizar");
+if (btnFinalizar) btnFinalizar.addEventListener("click", finalizarPedido);
+
+const btnEnviar = document.getElementById("enviar");
+if (btnEnviar) btnEnviar.addEventListener("click", enviarEmail);
 
 cargarProductos();
