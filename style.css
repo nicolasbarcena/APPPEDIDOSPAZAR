@@ -6,7 +6,7 @@
 }
 
 body {
-  background: #e6f4ea; /* Verde muy claro */
+  background: #e6f4ea; 
   color: #333;
   line-height: 1.5;
   padding: 10px;
@@ -21,12 +21,11 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/*  Títulos  */
 h1 {
   text-align: center;
   font-size: 3.5rem;
   margin-bottom: 25px;
-  color: #2e7d32; /* Verde principal */
+  color: #2e7d32; 
 }
 
 h2 {
@@ -35,7 +34,6 @@ h2 {
   font-size: 1.4rem;
 }
 
-/*  Formulario cliente  */
 input,
 select {
   width: 100%;
@@ -54,10 +52,9 @@ input:focus,
 select:focus {
   outline: none;
   background: #fff;
-  box-shadow: 0 0 0 3px #b7e4c7; /* Verde claro */
+  box-shadow: 0 0 0 3px #b7e4c7; 
 }
 
-/*  Categorías  */
 .categoria-lista {
   display: flex;
   flex-wrap: wrap;
@@ -70,13 +67,13 @@ select:focus {
   padding: 14px 20px;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 10px;
-  border: 2px solid #2e7d32; /* Borde verde */
+  border: 2px solid #2e7d32; 
   cursor: pointer;
   font-size: 20px;
   font-weight: 500;
   transition: all 0.3s ease;
   backdrop-filter: blur(6px);
-  color: #1b5e20; /* Texto verde oscuro */
+  color: #1b5e20; 
 }
 
 .categoria-btn:hover {
@@ -91,7 +88,6 @@ select:focus {
   color: #fff;
 }
 
-/*  Catálogo Moderno  */
 .catalogo #productos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -100,7 +96,6 @@ select:focus {
   padding: 10px;
 }
 
-/* Tarjeta de producto */
 .producto {
   border: none;
   border-radius: 16px;
@@ -115,7 +110,6 @@ select:focus {
   overflow: hidden;
 }
 
-/* Barra de color decorativa */
 .producto::before {
   content: "";
   position: absolute;
@@ -123,16 +117,14 @@ select:focus {
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(135deg, #56ab2f, #a8e063); /* Gradiente verde */
+  background: linear-gradient(135deg, #56ab2f, #a8e063); 
 }
 
-/* Animación hover */
 .producto:hover {
   transform: translateY(-10px) scale(1.02);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
 }
 
-/* Imagen */
 .producto img {
   width: 100%;
   height: 180px;
@@ -146,7 +138,6 @@ select:focus {
   transform: scale(1.05);
 }
 
-/* Título */
 .producto h3 {
   font-size: 1.25rem;
   font-weight: 600;
@@ -159,7 +150,6 @@ select:focus {
   color: #000000;
 }
 
-/* Descripción */
 .producto p {
   font-size: 0.95rem;
   margin-bottom: 10px;
@@ -168,10 +158,9 @@ select:focus {
   line-height: 1.4;
 }
 
-/* Botón */
 .producto button {
   margin-top: auto;
-  background: #2ecc71; /* Verde fuerte */
+  background: #2ecc71; 
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -183,17 +172,16 @@ select:focus {
 }
 
 .producto button:hover {
-  background: linear-gradient(135deg, #1e7a3a, #2ecc71); /* Gradiente verde */
+  background: linear-gradient(135deg, #1e7a3a, #2ecc71); 
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
 }
 
 .producto button:focus-visible {
-  outline: 3px solid #a7f3d0; /* Verde menta */
+  outline: 3px solid #a7f3d0; 
   outline-offset: 3px;
 }
 
-/*  Carrito  */
 .carrito {
   overflow-x: auto;
 }
@@ -214,14 +202,14 @@ select:focus {
 }
 
 .carrito th {
-  background: #2e7d32; /* Verde intenso */
+  background: #2e7d32; 
   color: #fff;
 }
 
 .carrito input[type="number"] {
   width: 60px;
   padding: 5px;
-  border: 1px solid #9ccc65; /* Verde suave */
+  border: 1px solid #9ccc65; 
   border-radius: 4px;
   text-align: center;
 }
@@ -233,9 +221,8 @@ select:focus {
   text-align: right;
 }
 
-/* Botón Finalizar */
 #finalizar {
-  background: #2e7d32; /* Verde intenso */
+  background: #2e7d32; 
   color: #fff;
   border: none;
   padding: 12px 18px;
@@ -248,15 +235,14 @@ select:focus {
 }
 
 #finalizar:hover {
-  background: #1b5e20; /* Verde más oscuro */
+  background: #1b5e20; 
 }
 
-/*  Remito  */
 .remito {
   margin-top: 25px;
   padding: 20px;
-  background: #f4fbf6; /* Fondo verdoso muy pálido */
-  border: 1px solid #c8e6c9; /* Borde verde claro */
+  background: #f4fbf6; 
+  border: 1px solid #c8e6c9; 
   border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
@@ -268,7 +254,7 @@ select:focus {
 }
 
 .remito th {
-  background: #2e7d32; /* Verde intenso */
+  background: #2e7d32; 
   color: #fff;
   padding: 10px;
 }
@@ -279,9 +265,8 @@ select:focus {
   text-align: center;
 }
 
-/* Botón Enviar */
 #enviar {
-  background: #2e7d32; /* Verde */
+  background: #2e7d32; 
   color: #ffffff;
   border: none;
   padding: 14px 18px;
@@ -294,11 +279,10 @@ select:focus {
 }
 
 #enviar:hover {
-  background: linear-gradient(135deg, #1b4332, #2ecc71); /* Gradiente verde */
+  background: linear-gradient(135deg, #1b4332, #2ecc71); 
   transform: translateY(-2px);
 }
 
-/*  Responsive  */
 @media (max-width: 768px) {
   h1 {
     font-size: 3.8rem;
@@ -364,7 +348,7 @@ select:focus {
 }
 
 .paginacion button {
-  background: #2ecc71; /* Verde fuerte */
+  background: #2ecc71; 
   color: white;
   border: none;
   padding: 8px 14px;
@@ -374,7 +358,7 @@ select:focus {
 }
 
 .paginacion button:hover {
-  background: #1e7a3a; /* Verde oscuro */
+  background: #1e7a3a; 
 }
 
 @media (max-width: 600px) {

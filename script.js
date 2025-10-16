@@ -1,13 +1,10 @@
-// EmailJS 
+
 const EMAILJS_PUBLIC_KEY = "TuhS0Seczz9QwIrV2";
 const SERVICE_ID = "service_6gz5wpm";
 const TEMPLATE_ID = "template_ibmmboa";
 
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
-// ==============================
-// Variables y estado
-// ==============================
 let carrito = [];
 let remitoActual = null;
 
@@ -16,11 +13,6 @@ const productosPorPagina = 15;
 
 let productos = [];
 
-// ==============================
-// Vinculación con Google Sheets
-// (usa tu hoja: 1NNEGWD_SQtV_9jE-kzRhPLzt5QkS-PJyP0CDq1riJ6o)
-// Intenta en este orden: "Productos" -> "Hoja 1" -> gid=0
-// ==============================
 const SHEET_ID = "1NNEGWD_SQtV_9jE-kzRhPLzt5QkS-PJyP0CDq1riJ6o";
 const SHEET_URLS = [
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Productos`,
@@ -28,9 +20,6 @@ const SHEET_URLS = [
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
 ];
 
-// ==============================
-// Utilidades
-// ==============================
 const nk = (s) =>
   String(s ?? "")
     .normalize("NFD")
@@ -43,21 +32,15 @@ const getVal = (obj, key) => {
   return found ? obj[found] : "";
 };
 
-// Acepta "1.234,56" o "1234.56" o "1,234.56"
 const parsePrice = (v) => {
   if (v == null) return 0;
   const s = String(v).replace(/\s/g, "");
-  // Si termina con ",xx" se asume decimal con coma y se eliminan puntos de miles
   if (/,(\d{1,2})$/.test(s)) {
     return parseFloat(s.replace(/\./g, "").replace(",", ".")) || 0;
   }
-  // Caso general: usar punto decimal y sacar comas de miles
   return parseFloat(s.replace(/,/g, "")) || 0;
 };
 
-// ==============================
-// Cargar productos desde Google Sheets (robusto)
-// ==============================
 async function cargarProductos() {
   try {
     let csvText = null;
@@ -83,7 +66,6 @@ async function cargarProductos() {
       throw lastErr || new Error("No se pudo descargar el CSV desde ninguna URL.");
     }
 
-    // Parseo CSV con Papa Parse
     const data = Papa.parse(csvText, {
       header: true,
       skipEmptyLines: true,
@@ -110,9 +92,6 @@ async function cargarProductos() {
   }
 }
 
-// ==============================
-// Mostrar productos por categoría (con paginación)
-// ==============================
 function mostrarProductos(categoria, pagina = 1) {
   const contenedor = document.getElementById("productos");
   contenedor.innerHTML = "";
@@ -124,12 +103,10 @@ function mostrarProductos(categoria, pagina = 1) {
     return;
   }
 
-  // Paginación
   const inicio = (pagina - 1) * productosPorPagina;
   const fin = inicio + productosPorPagina;
   const paginaProductos = filtrados.slice(inicio, fin);
 
-  // Render
   paginaProductos.forEach((prod) => {
     const div = document.createElement("div");
     div.classList.add("producto");
@@ -151,7 +128,6 @@ function mostrarProductos(categoria, pagina = 1) {
     contenedor.appendChild(div);
   });
 
-  // Controles de paginación
   const paginacion = document.createElement("div");
   paginacion.classList.add("paginacion");
 
@@ -172,13 +148,9 @@ function mostrarProductos(categoria, pagina = 1) {
   contenedor.appendChild(paginacion);
 }
 
-// ==============================
-// Carrito (alta, cambio cantidad, baja)
-// ==============================
 function agregarAlCarrito(code, description, price) {
   const producto = productos.find((p) => p.code === code);
 
-  // Validación de stock
   if (!producto || producto.stock <= 0) {
     alert("Este producto no tiene stock disponible.");
     return;
@@ -205,11 +177,9 @@ function agregarAlCarrito(code, description, price) {
     producto.stock--;
   }
 
-  // Actualizar stock en pantalla (si mostrás el stock)
   const stockSpan = document.getElementById(`stock-${code}`);
   if (stockSpan) stockSpan.textContent = producto.stock;
 
-  // Desactivar botón si se agotó
   if (producto.stock <= 0) {
     const btn = document.getElementById(`btn-${code}`);
     if (btn) btn.disabled = true;
@@ -229,7 +199,7 @@ function renderCarrito() {
       <td>${item.description}</td>
       <td>
         <input type="number" min="1" value="${item.cantidad}"
-               onchange="cambiarCantidad(${index}, this.value)">
+        onchange="cambiarCantidad(${index}, this.value)">
       </td>
       <td>$${parsePrice(item.price).toFixed(2)}</td>
       <td>$${item.subtotal.toFixed(2)}</td>
@@ -255,14 +225,12 @@ function cambiarCantidad(index, cantidad) {
     cantidad = maxPosible;
   }
 
-  // Ajustar stock disponible en catálogo
   const diferencia = cantidad - carrito[index].cantidad;
   producto.stock -= diferencia;
 
   carrito[index].cantidad = cantidad;
   carrito[index].subtotal = carrito[index].cantidad * carrito[index].price;
 
-  // Actualizar stock en catálogo (si se muestra)
   const stockSpan = document.getElementById(`stock-${producto.code}`);
   if (stockSpan) stockSpan.textContent = producto.stock;
 
@@ -282,13 +250,11 @@ function eliminarDelCarrito(index) {
   const producto = productos.find((p) => p.code === item.code);
   if (!producto) return;
 
-  // Devolver stock al catálogo
   producto.stock += item.cantidad;
 
   const stockSpan = document.getElementById(`stock-${producto.code}`);
   if (stockSpan) stockSpan.textContent = producto.stock;
 
-  // Reactivar botón si volvió stock
   const btn = document.getElementById(`btn-${producto.code}`);
   if (btn) btn.disabled = producto.stock <= 0;
 
@@ -296,9 +262,6 @@ function eliminarDelCarrito(index) {
   renderCarrito();
 }
 
-// ==============================
-// Remito / Pedido
-// ==============================
 function generarNumeroRemito() {
   const fecha = new Date();
   const dd = String(fecha.getDate()).padStart(2, "0");
@@ -334,7 +297,6 @@ async function finalizarPedido() {
 
   mostrarRemito(remitoActual);
 
-  // Actualizar stock en Google Sheets mediante Apps Script
   try {
     const res = await fetch(
       "https://script.google.com/macros/s/AKfycbym93C9owPRg7Qh-f2SO83qfv_cEHoj0J87VUE6B3AKrXgMFkMVihtE5Q-SPrNXksTVDw/exec",
@@ -350,7 +312,6 @@ async function finalizarPedido() {
     if (data.success) {
       console.log("Stock actualizado en Sheets:", data.updated);
 
-      // Refrescar el stock en la UI
       data.updated.forEach((u) => {
         const stockSpan = document.getElementById(`stock-${u.code}`);
         if (stockSpan) stockSpan.textContent = u.stock;
@@ -393,9 +354,6 @@ function mostrarRemito(remito) {
   document.getElementById("remito-section").style.display = "block";
 }
 
-// ==============================
-// Envío por Email (EmailJS)
-// ==============================
 async function enviarEmail() {
   if (!remitoActual) return alert("No hay remito para enviar.");
 
@@ -427,13 +385,7 @@ async function enviarEmail() {
   }
 }
 
-// ==============================
-// Eventos
-// ==============================
 document.getElementById("finalizar").addEventListener("click", finalizarPedido);
 document.getElementById("enviar").addEventListener("click", enviarEmail);
 
-// ==============================
-// Inicialización
-// ==============================
 cargarProductos();
