@@ -7,7 +7,6 @@ let remitoActual = null;
 let paginaActual = 1;
 const productosPorPagina = 15;
 let productos = [];
-
 const SHEET_ID = "1NNEGWD_SQtV_9jE-kzRhPLzt5QkS-PJyP0CDq1riJ6o";
 const SHEET_URLS = [
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Productos`,
