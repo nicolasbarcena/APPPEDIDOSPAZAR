@@ -1,10 +1,10 @@
 {
-  "name": "KAZARO PEDIDOS",
-  "short_name": "KZRO",
+  "name": "PAZAR PEDIDOS",
+  "short_name": "Pazar",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#3498db",
+  "theme_color": "#2e7d32",
   "orientation": "portrait",
   "icons": [
     {
