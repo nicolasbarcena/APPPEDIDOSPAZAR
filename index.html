@@ -3,20 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>App de Pedidos</title>
-
-  <!-- Estilos (tu CSS en verde) -->
+  <title>Pazar Pedidos</title>
+  <link rel="icon" href="/Pazar.png" />
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Manifest y tema (verde) -->
-  <!-- Usa rutas relativas para evitar 404 si desplegás en subcarpeta -->
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#2e7d32" />
-
-  <!-- Iconos (opcional) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-  <!-- EmailJS (antes de tu script.js para que emailjs esté disponible) -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
@@ -76,7 +68,6 @@
     </section>
   </div>
 
-  <!-- Service Worker: usar ruta relativa ("sw.js") -->
   <script>
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("sw.js")
@@ -84,11 +75,7 @@
         .catch(err => console.error("Error registrando SW:", err));
     }
   </script>
-
-  <!-- Papa Parse (antes de tu script, requerido para Papa.parse) -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <!-- Tu lógica principal (usa el script.js que ya te pasé con SHEET_ID y cargarProductos robusto) -->
   <script src="script.js"></script>
 </body>
 </html>
