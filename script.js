@@ -2,17 +2,29 @@ const EMAILJS_PUBLIC_KEY = "TuhS0Seczz9QwIrV2";
 const SERVICE_ID = "service_6gz5wpm";
 const TEMPLATE_ID = "template_ibmmboa";
 emailjs.init(EMAILJS_PUBLIC_KEY);
+
 let carrito = [];
 let remitoActual = null;
 let paginaActual = 1;
 const productosPorPagina = 15;
 let productos = [];
+
+let servicioSeleccionado = null; 
+
 const SHEET_ID = "1NNEGWD_SQtV_9jE-kzRhPLzt5QkS-PJyP0CDq1riJ6o";
 const SHEET_URLS = [
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Productos`,
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Hoja%201`,
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`,
 ];
+
+const SERVICES_SHEET_ID = SHEET_ID;      
+const SERVICES_SHEET_NAME = "Servicios"; 
+const SERVICES_RANGE = "A2:A";           
+const SERVICES_URL =
+  `https://docs.google.com/spreadsheets/d/${SERVICES_SHEET_ID}` +
+  `/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SERVICES_SHEET_NAME)}` +
+  `&range=${encodeURIComponent(SERVICES_RANGE)}`;
 
 const nk = (s) =>
   String(s ?? "")
@@ -21,7 +33,7 @@ const nk = (s) =>
     .toLowerCase()
     .trim();
 
-  const getVal = (obj, key) => {
+const getVal = (obj, key) => {
   const found = Object.keys(obj).find((k) => nk(k) === nk(key));
   return found ? obj[found] : "";
 };
@@ -82,6 +94,39 @@ async function cargarProductos() {
   }
 }
 
+async function cargarServicios() {
+  try {
+    const res = await fetch(SERVICES_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const csv = await res.text();
+    const parsed = Papa.parse(csv, { header: false, skipEmptyLines: true });
+    const crudos = parsed.data.map((row) => (Array.isArray(row) ? row[0] : row)).filter(Boolean);
+    const servicios = [...new Set(crudos
+      .map((x) => String(x ?? "").trim())
+      .filter((v) => v && !["servicio", "servicios", "nombre", "lista"].includes(nk(v))))];
+
+    const sel = document.getElementById("servicio-select");
+    if (!sel) return;
+
+    [...sel.options].slice(1).forEach((o) => o.remove());
+
+    servicios.forEach((nombre) => {
+      const opt = document.createElement("option");
+      opt.value = nombre;
+      opt.textContent = nombre;
+      sel.appendChild(opt);
+    });
+
+    console.log("Servicios cargados:", servicios.length);
+  } catch (e) {
+    console.error("No se pudo cargar la lista de Servicios:", e);
+    alert(
+      "No se pudo cargar la lista de Servicios desde Google Sheets.\n" +
+      `Verificá permisos y que exista la hoja '${SERVICES_SHEET_NAME}' (rango ${SERVICES_RANGE}).`
+    );
+  }
+}
+
 function mostrarProductos(categoria, pagina = 1) {
   const contenedor = document.getElementById("productos");
   contenedor.innerHTML = "";
@@ -131,7 +176,6 @@ function mostrarProductos(categoria, pagina = 1) {
   contenedor.appendChild(paginacion);
 }
 
-
 function agregarAlCarrito(code, description, price) {
   const producto = productos.find((p) => p.code === code);
 
@@ -139,7 +183,6 @@ function agregarAlCarrito(code, description, price) {
     alert("Este producto no tiene stock disponible.");
     return;
   }
-
   let existente = carrito.find((p) => p.code === code);
   if (existente) {
     if (existente.cantidad < producto.stock) {
@@ -249,6 +292,16 @@ async function finalizarPedido() {
     return;
   }
 
+  const servicio =
+    (servicioSeleccionado ??
+      document.getElementById("servicio-select")?.value ??
+      "").trim();
+
+  if (!servicio) {
+    alert("Seleccioná el servicio en el desplegable antes de finalizar.");
+    return;
+  }
+
   const numeroRemito = generarNumeroRemito();
   const total = carrito.reduce((sum, i) => sum + i.subtotal, 0);
 
@@ -256,6 +309,7 @@ async function finalizarPedido() {
     numero: numeroRemito,
     cliente,
     fecha: new Date().toLocaleString(),
+    servicio, 
     items: [...carrito],
     total,
   };
@@ -294,6 +348,7 @@ function mostrarRemito(remito) {
     <p><strong>Remito N°:</strong> ${remito.numero}</p>
     <p><strong>Cliente:</strong> ${remito.cliente}</p>
     <p><strong>Fecha:</strong> ${remito.fecha}</p>
+    <p><strong>Servicio:</strong> ${remito.servicio}</p>
     <table>
       <thead>
         <tr><th>Código</th><th>Artículo</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
@@ -329,11 +384,13 @@ async function enviarEmail() {
   </tr>`
     )
     .join("");
+
   try {
     await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
       numero: remitoActual.numero,
       cliente: remitoActual.cliente,
       fecha: remitoActual.fecha,
+      servicio: remitoActual.servicio, 
       total: remitoActual.total.toFixed(2),
       detalle: detalleHTML,
     });
@@ -344,10 +401,25 @@ async function enviarEmail() {
   }
 }
 
+document.getElementById("servicio-confirm")?.addEventListener("click", () => {
+  const sel = document.getElementById("servicio-select");
+  const val = (sel?.value || "").trim();
+  if (!val) {
+    alert("Seleccioná un servicio.");
+    return;
+  }
+  servicioSeleccionado = val;
+  const resumen = document.getElementById("servicio-resumen");
+  const elegido = document.getElementById("servicio-elegido");
+  if (elegido) elegido.textContent = val;
+  if (resumen) resumen.style.display = "block";
+});
+
 const btnFinalizar = document.getElementById("finalizar");
 if (btnFinalizar) btnFinalizar.addEventListener("click", finalizarPedido);
 
 const btnEnviar = document.getElementById("enviar");
 if (btnEnviar) btnEnviar.addEventListener("click", enviarEmail);
 
-cargarProductos();
+// ======= Bootstrap =======
+Promise.all([cargarProductos(), cargarServicios()]).catch(console.error);

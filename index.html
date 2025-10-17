@@ -17,12 +17,29 @@
       <img src="Pazar.png" alt="Logo Pazar" class="logo" />
       Pazar
     </h1>
+
     <section class="form-section">
       <h2>Datos Del Cliente</h2>
       <label for="cliente">Nombre y Apellido:</label>
       <input type="text" id="cliente" placeholder="Ingrese su nombre completo" required />
     </section>
-    
+
+    <section class="servicio" id="servicio-section">
+      <h2>Servicio</h2>
+      <div class="servicio-controles">
+        <label for="servicio-select">Elegí el servicio:</label>
+        <select id="servicio-select">
+          <option value="">Seleccionar servicio</option>
+        </select>
+        <button id="servicio-confirm" class="btn-confirmar-servicio">
+          <i class="fa-solid fa-check"></i> Usar este servicio
+        </button>
+      </div>
+      <p id="servicio-resumen" style="display:none;margin-top:8px;">
+        Servicio seleccionado: <strong id="servicio-elegido"></strong>
+      </p>
+    </section>
+
     <section class="categorias">
       <h2>Categorías</h2>
       <div class="categoria-lista">
@@ -33,7 +50,7 @@
         <button class="categoria-btn" onclick="mostrarProductos('COMBUSTIBLE')">⛽ Combustible</button>
       </div>
     </section>
-    
+
     <section class="catalogo">
       <h2>Catálogo de Productos</h2>
       <div id="productos"></div>
