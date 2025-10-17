@@ -361,25 +361,37 @@ function mostrarRemito(remito) {
     <p><strong>Cliente:</strong> ${remito.cliente}</p>
     <p><strong>Fecha:</strong> ${remito.fecha}</p>
     <p><strong>Servicio:</strong> ${remito.servicio}</p>
-    <table>
-      <thead>
-        <tr><th>Código</th><th>Artículo</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr>
-      </thead>
-      <tbody>
-        ${remito.items
-          .map(
-            (i) =>
-              `<tr><td>${i.code}</td><td>${i.description}</td><td>${i.cantidad}</td><td>$${parsePrice(
-                i.price
-              ).toFixed(2)}</td><td>$${i.subtotal.toFixed(2)}</td></tr>`
-          )
-          .join("")}
-      </tbody>
-    </table>
+
+    <div class="table-scroll">
+      <table class="remito-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Artículo</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${remito.items.map(i => `
+            <tr>
+              <td>${i.code}</td>
+              <td>${i.description}</td>
+              <td class="c">${i.cantidad}</td>
+              <td class="r">$${parsePrice(i.price).toFixed(2)}</td>
+              <td class="r">$${i.subtotal.toFixed(2)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+
     <h3>Total: $${remito.total.toFixed(2)}</h3>
   `;
   document.getElementById("remito-section").style.display = "block";
 }
+
 
 async function enviarEmail() {
   if (!remitoActual) return alert("No hay remito para enviar.");

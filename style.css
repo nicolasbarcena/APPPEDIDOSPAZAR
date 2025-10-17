@@ -392,3 +392,42 @@ select:focus {
     content: url("normasiso.png"); 
   }
 }
+
+#remito-section { max-width: 100%; }
+#remito-section h3 { margin-top: 10px; }
+
+#remito-section .table-scroll {
+  overflow-x: auto;             
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.remito-table {
+  width: 100%;
+  min-width: 560px;             
+  border-collapse: collapse;
+  table-layout: fixed;         
+}
+
+.remito-table th,
+.remito-table td {
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  font-size: 14px;
+  vertical-align: top;
+  word-break: break-word;       
+}
+
+.remito-table th:nth-child(2),
+.remito-table td:nth-child(2) {
+  white-space: normal;
+}
+
+.remito-table td.c { text-align: center; white-space: nowrap; }
+.remito-table td.r { text-align: right;   white-space: nowrap; }
+
+@media (max-width: 420px) {
+  .remito-table th,
+  .remito-table td { font-size: 12px; padding: 6px; }
+}
