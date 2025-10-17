@@ -2,7 +2,6 @@ const EMAILJS_PUBLIC_KEY = "TuhS0Seczz9QwIrV2";
 const SERVICE_ID = "service_6gz5wpm";
 const TEMPLATE_ID = "template_ibmmboa";
 emailjs.init(EMAILJS_PUBLIC_KEY);
-
 let carrito = [];
 let remitoActual = null;
 let paginaActual = 1;
@@ -100,7 +99,10 @@ async function cargarServicios() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
     const parsed = Papa.parse(csv, { header: false, skipEmptyLines: true });
-    const crudos = parsed.data.map((row) => (Array.isArray(row) ? row[0] : row)).filter(Boolean);
+    const crudos = parsed.data
+      .map((row) => (Array.isArray(row) ? row[0] : row))
+      .filter(Boolean);
+
     const servicios = [...new Set(crudos
       .map((x) => String(x ?? "").trim())
       .filter((v) => v && !["servicio", "servicios", "nombre", "lista"].includes(nk(v))))];
@@ -125,6 +127,15 @@ async function cargarServicios() {
       `Verificá permisos y que exista la hoja '${SERVICES_SHEET_NAME}' (rango ${SERVICES_RANGE}).`
     );
   }
+}
+
+function updateFinalizeState() {
+  const btn = document.getElementById("finalizar");
+  const val =
+    (servicioSeleccionado ??
+      document.getElementById("servicio-select")?.value ??
+      "").trim();
+  if (btn) btn.disabled = !val; 
 }
 
 function mostrarProductos(categoria, pagina = 1) {
@@ -183,6 +194,7 @@ function agregarAlCarrito(code, description, price) {
     alert("Este producto no tiene stock disponible.");
     return;
   }
+
   let existente = carrito.find((p) => p.code === code);
   if (existente) {
     if (existente.cantidad < producto.stock) {
@@ -222,7 +234,7 @@ function renderCarrito() {
       <td>${item.description}</td>
       <td>
         <input type="number" min="1" value="${item.cantidad}"
-               onchange="cambiarCantidad(${index}, this.value)">
+        onchange="cambiarCantidad(${index}, this.value)">
       </td>
       <td>$${parsePrice(item.price).toFixed(2)}</td>
       <td>$${item.subtotal.toFixed(2)}</td>
@@ -409,17 +421,32 @@ document.getElementById("servicio-confirm")?.addEventListener("click", () => {
     return;
   }
   servicioSeleccionado = val;
+
   const resumen = document.getElementById("servicio-resumen");
   const elegido = document.getElementById("servicio-elegido");
   if (elegido) elegido.textContent = val;
   if (resumen) resumen.style.display = "block";
+
+  updateFinalizeState(); 
+});
+
+document.getElementById("servicio-select")?.addEventListener("change", () => {
+  servicioSeleccionado = (document.getElementById("servicio-select")?.value || "").trim();
+  if (!servicioSeleccionado) {
+    const resumen = document.getElementById("servicio-resumen");
+    if (resumen) resumen.style.display = "none";
+  }
+  updateFinalizeState();
 });
 
 const btnFinalizar = document.getElementById("finalizar");
-if (btnFinalizar) btnFinalizar.addEventListener("click", finalizarPedido);
-
+if (btnFinalizar) {
+  btnFinalizar.disabled = true; 
+  btnFinalizar.addEventListener("click", finalizarPedido);
+}
 const btnEnviar = document.getElementById("enviar");
 if (btnEnviar) btnEnviar.addEventListener("click", enviarEmail);
 
-// ======= Bootstrap =======
-Promise.all([cargarProductos(), cargarServicios()]).catch(console.error);
+Promise.all([cargarProductos(), cargarServicios()])
+  .then(updateFinalizeState) 
+  .catch(console.error);
