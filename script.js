@@ -2,6 +2,14 @@ const EMAILJS_PUBLIC_KEY = "TuhS0Seczz9QwIrV2";
 const SERVICE_ID = "service_6gz5wpm";
 const TEMPLATE_ID = "template_ibmmboa";
 emailjs.init(EMAILJS_PUBLIC_KEY);
+
+// Sanitiza texto para evitar inyección HTML (se usa para la Nota)
+function escapeHtml(s){
+  return String(s || "").replace(/[&<>"]/g, c => (
+    {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]
+  ));
+}
+
 let carrito = [];
 let remitoActual = null;
 let paginaActual = 1;
@@ -324,6 +332,8 @@ async function finalizarPedido() {
     servicio, 
     items: [...carrito],
     total,
+    // NUEVO: guardo la nota ingresada (máx. 300 chars)
+    nota: (document.getElementById('nota')?.value || '').trim().slice(0,300),
   };
   mostrarRemito(remitoActual);
 
@@ -388,15 +398,23 @@ function mostrarRemito(remito) {
     </div>
 
     <h3>Total: $${remito.total.toFixed(2)}</h3>
+
+    <!-- NUEVO: Nota / Observaciones -->
+    <div style="margin-top:12px;">
+      <h4 style="margin:0 0 6px 0;">Nota / Observaciones</h4>
+      <div style="border-left:4px solid #2e7d32; background:#f7f7f7; padding:10px; border-radius:6px;">
+        ${remito.nota ? escapeHtml(remito.nota) : "<em>Sin nota</em>"}
+      </div>
+    </div>
   `;
   document.getElementById("remito-section").style.display = "block";
 }
 
-
 async function enviarEmail() {
   if (!remitoActual) return alert("No hay remito para enviar.");
 
-  const detalleHTML = remitoActual.items
+  // Cambiado a let para poder agregar la nota abajo
+  let detalleHTML = remitoActual.items
     .map(
       (i) => `
   <tr>
@@ -409,6 +427,12 @@ async function enviarEmail() {
     )
     .join("");
 
+  // NUEVO: agregar nota debajo de la tabla si existe
+  if (remitoActual.nota && remitoActual.nota.trim()) {
+    detalleHTML += `
+<div style="margin-top:12px;"><strong>Nota / Observaciones:</strong> ${escapeHtml(remitoActual.nota)}</div>`;
+  }
+
   try {
     await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
       numero: remitoActual.numero,
@@ -417,6 +441,8 @@ async function enviarEmail() {
       servicio: remitoActual.servicio, 
       total: remitoActual.total.toFixed(2),
       detalle: detalleHTML,
+      // También como campo independiente por si lo querés usar en la plantilla
+      nota: remitoActual.nota || '',
     });
     alert("Remito enviado con éxito.");
   } catch (err) {
